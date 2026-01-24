@@ -1,0 +1,192 @@
+local TweenService = game:GetService("TweenService")
+local Player = game.Players.LocalPlayer
+
+-- UI Components
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local UICorner = Instance.new("UICorner")
+local UIStroke = Instance.new("UIStroke")
+local UIGradient = Instance.new("UIGradient")
+local Title = Instance.new("TextLabel")
+local AvatarImg = Instance.new("ImageLabel")
+local LoadScript = Instance.new("TextButton")
+local JoinDiscord = Instance.new("TextButton")
+local CloseCircle = Instance.new("TextButton")
+local Status = Instance.new("TextLabel")
+
+-- Settings
+local DiscordLink = "https://discord.gg/TJEyQSbsKM"
+local MainScript = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/main.lua"
+
+-- Setup
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "FyxLoader_UltraSmooth"
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.Position = UDim2.new(0.5, -160, 0.6, -135) -- Start position (Lower)
+MainFrame.Size = UDim2.new(0, 320, 0, 270)
+MainFrame.BackgroundTransparency = 1 -- Hidden
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+UICorner.CornerRadius = UDim.new(0, 16)
+UICorner.Parent = MainFrame
+
+
+UIStroke.Parent = MainFrame
+UIStroke.Thickness = 3
+UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+UIStroke.Color = Color3.fromRGB(255, 255, 255)
+UIStroke.Transparency = 1 -- Hidden
+
+UIGradient.Parent = UIStroke
+UIGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255))
+}
+
+
+AvatarImg.Name = "AvatarImg"
+AvatarImg.Parent = MainFrame
+AvatarImg.BackgroundTransparency = 1
+AvatarImg.Position = UDim2.new(0.5, -115, 0, 15)
+AvatarImg.Size = UDim2.new(0, 45, 0, 45)
+AvatarImg.ImageTransparency = 1 -- Hidden
+AvatarImg.Image = game.Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+local AvatarCorner = Instance.new("UICorner", AvatarImg)
+AvatarCorner.CornerRadius = UDim.new(1, 0)
+
+-- Title
+Title.Parent = MainFrame
+Title.Text = "FYX HUB"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Position = UDim2.new(0.2, 0, 0, 10)
+Title.Size = UDim2.new(0.7, 0, 0, 55)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 28
+Title.TextTransparency = 1 -- Hidden
+
+
+CloseCircle.Name = "CloseCircle"
+CloseCircle.Parent = MainFrame
+CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 95, 87)
+CloseCircle.Position = UDim2.new(0, 15, 0, 15)
+CloseCircle.Size = UDim2.new(0, 14, 0, 14)
+CloseCircle.Text = ""
+CloseCircle.BackgroundTransparency = 1 -- Hidden
+Instance.new("UICorner", CloseCircle).CornerRadius = UDim.new(1, 0)
+
+
+LoadScript.Name = "LoadScript"
+LoadScript.Parent = MainFrame
+LoadScript.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+LoadScript.Position = UDim2.new(0.1, 0, 0.35, 0)
+LoadScript.Size = UDim2.new(0.8, 0, 0, 55)
+LoadScript.Text = "LAUNCH SCRIPT"
+LoadScript.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadScript.Font = Enum.Font.GothamBold
+LoadScript.TextSize = 18
+LoadScript.BackgroundTransparency = 1 -- Hidden
+LoadScript.TextTransparency = 1 -- Hidden
+Instance.new("UICorner", LoadScript)
+
+
+JoinDiscord.Name = "JoinDiscord"
+JoinDiscord.Parent = MainFrame
+JoinDiscord.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+JoinDiscord.Position = UDim2.new(0.1, 0, 0.6, 0)
+JoinDiscord.Size = UDim2.new(0.8, 0, 0, 55)
+JoinDiscord.Text = "Discord Link"
+JoinDiscord.TextColor3 = Color3.fromRGB(255, 255, 255)
+JoinDiscord.Font = Enum.Font.GothamBold
+JoinDiscord.TextSize = 18
+JoinDiscord.BackgroundTransparency = 1 -- Hidden
+JoinDiscord.TextTransparency = 1 -- Hidden
+Instance.new("UICorner", JoinDiscord)
+
+
+Status.Parent = MainFrame
+Status.Position = UDim2.new(0, 0, 0.88, 0)
+Status.Size = UDim2.new(1, 0, 0, 25)
+Status.BackgroundTransparency = 1
+Status.Text = "Welcome, " .. Player.DisplayName
+Status.TextColor3 = Color3.fromRGB(180, 180, 180)
+Status.Font = Enum.Font.GothamSemibold
+Status.TextSize = 14
+Status.TextTransparency = 1 -- Hidden
+
+
+local mainIn = TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+    Position = UDim2.new(0.5, -160, 0.5, -135),
+    BackgroundTransparency = 0
+})
+
+mainIn:Play()
+TweenService:Create(UIStroke, TweenInfo.new(0.8), {Transparency = 0}):Play()
+TweenService:Create(AvatarImg, TweenInfo.new(0.8), {ImageTransparency = 0}):Play()
+TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+TweenService:Create(CloseCircle, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+
+
+task.wait(0.2)
+TweenService:Create(LoadScript, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+task.wait(0.1)
+TweenService:Create(JoinDiscord, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
+TweenService:Create(Status, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
+
+
+spawn(function()
+    local rot = 0
+    while task.wait() do
+        rot = rot + 1
+        UIGradient.Rotation = rot % 360
+    end
+end)
+
+
+local function CloseUI()
+    local mainOut = TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
+        Position = UDim2.new(0.5, -160, 0.6, -135),
+        Size = UDim2.new(0, 0, 0, 0),
+        BackgroundTransparency = 1
+    })
+    
+
+    for _, v in pairs(MainFrame:GetChildren()) do
+        if v:IsA("TextLabel") or v:IsA("TextButton") then
+            TweenService:Create(v, TweenInfo.new(0.3), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
+        elseif v:IsA("ImageLabel") then
+            TweenService:Create(v, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
+        end
+    end
+    
+    mainOut:Play()
+    mainOut.Completed:Connect(function() ScreenGui:Destroy() end)
+end
+
+
+CloseCircle.MouseButton1Click:Connect(CloseUI)
+CloseCircle.MouseEnter:Connect(function() CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 50, 50) end)
+CloseCircle.MouseLeave:Connect(function() CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 95, 87) end)
+
+LoadScript.MouseButton1Click:Connect(function()
+    Status.Text = "Launching..."
+    loadstring(game:HttpGet(MainScript))()
+    task.wait(0.5)
+    CloseUI()
+end)
+
+JoinDiscord.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(DiscordLink)
+        Status.Text = "Link Copied!"
+        task.wait(2)
+        Status.Text = "Welcome, " .. Player.DisplayName
+    end
+end)
