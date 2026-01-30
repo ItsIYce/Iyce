@@ -1,199 +1,261 @@
 local TweenService = game:GetService("TweenService")
 local Player = game.Players.LocalPlayer
+local MarketplaceService = game:GetService("MarketplaceService")
 
--- UI Components
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local UICorner = Instance.new("UICorner")
-local UIStroke = Instance.new("UIStroke")
-local UIGradient = Instance.new("UIGradient")
-local Title = Instance.new("TextLabel")
-local AvatarImg = Instance.new("ImageLabel")
-local LoadScript = Instance.new("TextButton")
-local JoinDiscord = Instance.new("TextButton")
-local CloseCircle = Instance.new("TextButton")
-local Status = Instance.new("TextLabel")
-
--- Settings
-local DiscordLink = "https://discord.gg/TJEyQSbsKM"
-
---// AUTO-DETECT SCRIPT SELECTION
-local PrisonLifeID = 155615604
-local MainScript = ""
-
-if game.PlaceId == PrisonLifeID then
-    -- If in Prison Life, use your specific script
-    MainScript = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/Prisonlife"
-else
-    -- Otherwise, load your universal main script
-    MainScript = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/main.lua"
+--// Executor Check
+local function getExecutor()
+    if identifyexecutor then
+        local name, version = identifyexecutor()
+        return name .. " (" .. version .. ")"
+    end
+    return "Unknown Executor"
 end
 
--- Setup
-ScreenGui.Parent = game.CoreGui
-ScreenGui.Name = "FyxLoader_UltraSmooth"
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+--// Safety Check for Game Data
+local Success, GameInfo = pcall(function() 
+    return MarketplaceService:GetProductInfo(game.PlaceId) 
+end)
+local GName = Success and GameInfo.Name or "Unknown Game"
 
+--// Configuration
+local DiscordLink = "https://discord.gg/TJEyQSbsKM"
+local PrisonLifeID = 155615604
+local Version = "v2.3.1"
+local UpdateLog = "• Fixed Stroke Gradient Rendering\n• Increased Corner Glow Saturation\n• Synced Background with Border Motion\n• Optimized Animation Thread"
+
+--// UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "FYX_Loader_Motion"
+ScreenGui.ResetOnSpawn = false
+
+local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.Position = UDim2.new(0.5, -160, 0.6, -135) -- Start position (Lower)
-MainFrame.Size = UDim2.new(0, 320, 0, 270)
-MainFrame.BackgroundTransparency = 1 -- Hidden
-MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.BackgroundColor3 = Color3.fromRGB(10, 12, 16)
+MainFrame.Position = UDim2.new(0.5, -225, 0.5, -150)
+MainFrame.Size = UDim2.new(0, 450, 0, 300)
+MainFrame.ClipsDescendants = true
+MainFrame.BackgroundTransparency = 1
 
-UICorner.CornerRadius = UDim.new(0, 16)
-UICorner.Parent = MainFrame
+--// Background Gradient
+local BgGradient = Instance.new("UIGradient")
+BgGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 15, 30)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(25, 50, 110)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(10, 15, 30))
+}
+BgGradient.Parent = MainFrame
 
-UIStroke.Parent = MainFrame
-UIStroke.Thickness = 3
+local UICorner = Instance.new("UICorner", MainFrame)
+UICorner.CornerRadius = UDim.new(0, 14)
+
+--// FIXED MOVING CORNERS (Sapphire Pulse)
+local UIStroke = Instance.new("UIStroke", MainFrame)
+UIStroke.Thickness = 3.5 -- Thicker for visibility
 UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-UIStroke.Color = Color3.fromRGB(255, 255, 255)
-UIStroke.Transparency = 1 -- Hidden
+UIStroke.Transparency = 0 -- Forced visible
+UIStroke.Color = Color3.new(1,1,1) -- Must be white for gradient to show
 
-UIGradient.Parent = UIStroke
-UIGradient.Color = ColorSequence.new{
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
-    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255))
+local StrokeGradient = Instance.new("UIGradient")
+StrokeGradient.Name = "StrokeGradient"
+StrokeGradient.Parent = UIStroke
+StrokeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 80, 255)),   -- Electric Blue
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(150, 220, 255)), -- Ice Blue
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 80, 255))    -- Electric Blue
 }
 
-AvatarImg.Name = "AvatarImg"
-AvatarImg.Parent = MainFrame
-AvatarImg.BackgroundTransparency = 1
-AvatarImg.Position = UDim2.new(0.5, -115, 0, 15)
-AvatarImg.Size = UDim2.new(0, 45, 0, 45)
-AvatarImg.ImageTransparency = 1 -- Hidden
-AvatarImg.Image = game.Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-local AvatarCorner = Instance.new("UICorner", AvatarImg)
-AvatarCorner.CornerRadius = UDim.new(1, 0)
+--// Close Button
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Parent = MainFrame
+CloseBtn.Size = UDim2.new(0, 26, 0, 26)
+CloseBtn.Position = UDim2.new(1, -36, 0, 10)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(15, 18, 24)
+CloseBtn.Text = "×"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 20
+CloseBtn.ZIndex = 25
+CloseBtn.AutoButtonColor = false
+Instance.new("UICorner", CloseBtn).CornerRadius = UDim.new(1, 0)
 
-Title.Parent = MainFrame
-Title.Text = "FYX HUB"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Position = UDim2.new(0.2, 0, 0, 10)
-Title.Size = UDim2.new(0.7, 0, 0, 55)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
-Title.TextSize = 28
-Title.TextTransparency = 1 -- Hidden
-
-CloseCircle.Name = "CloseCircle"
-CloseCircle.Parent = MainFrame
-CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 95, 87)
-CloseCircle.Position = UDim2.new(0, 15, 0, 15)
-CloseCircle.Size = UDim2.new(0, 14, 0, 14)
-CloseCircle.Text = ""
-CloseCircle.BackgroundTransparency = 1 -- Hidden
-Instance.new("UICorner", CloseCircle).CornerRadius = UDim.new(1, 0)
-
-LoadScript.Name = "LoadScript"
-LoadScript.Parent = MainFrame
-LoadScript.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-LoadScript.Position = UDim2.new(0.1, 0, 0.35, 0)
-LoadScript.Size = UDim2.new(0.8, 0, 0, 55)
-LoadScript.Text = "LAUNCH SCRIPT"
-LoadScript.TextColor3 = Color3.fromRGB(255, 255, 255)
-LoadScript.Font = Enum.Font.GothamBold
-LoadScript.TextSize = 18
-LoadScript.BackgroundTransparency = 1 -- Hidden
-LoadScript.TextTransparency = 1 -- Hidden
-Instance.new("UICorner", LoadScript)
-
-JoinDiscord.Name = "JoinDiscord"
-JoinDiscord.Parent = MainFrame
-JoinDiscord.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-JoinDiscord.Position = UDim2.new(0.1, 0, 0.6, 0)
-JoinDiscord.Size = UDim2.new(0.8, 0, 0, 55)
-JoinDiscord.Text = "Discord Link"
-JoinDiscord.TextColor3 = Color3.fromRGB(255, 255, 255)
-JoinDiscord.Font = Enum.Font.GothamBold
-JoinDiscord.TextSize = 18
-JoinDiscord.BackgroundTransparency = 1 -- Hidden
-JoinDiscord.TextTransparency = 1 -- Hidden
-Instance.new("UICorner", JoinDiscord)
-
-Status.Parent = MainFrame
-Status.Position = UDim2.new(0, 0, 0.88, 0)
-Status.Size = UDim2.new(1, 0, 0, 25)
-Status.BackgroundTransparency = 1
-Status.Text = "Welcome, " .. Player.DisplayName
-Status.TextColor3 = Color3.fromRGB(180, 180, 180)
-Status.Font = Enum.Font.GothamSemibold
-Status.TextSize = 14
-Status.TextTransparency = 1 -- Hidden
-
-local mainIn = TweenService:Create(MainFrame, TweenInfo.new(0.8, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
-    Position = UDim2.new(0.5, -160, 0.5, -135),
-    BackgroundTransparency = 0
-})
-
-mainIn:Play()
-TweenService:Create(UIStroke, TweenInfo.new(0.8), {Transparency = 0}):Play()
-TweenService:Create(AvatarImg, TweenInfo.new(0.8), {ImageTransparency = 0}):Play()
-TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
-TweenService:Create(CloseCircle, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
-
-task.wait(0.2)
-TweenService:Create(LoadScript, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-task.wait(0.1)
-TweenService:Create(JoinDiscord, TweenInfo.new(0.5), {BackgroundTransparency = 0, TextTransparency = 0}):Play()
-TweenService:Create(Status, TweenInfo.new(0.5), {TextTransparency = 0}):Play()
-
-task.spawn(function()
-    local rot = 0
-    while task.wait() do
-        rot = rot + 1
-        UIGradient.Rotation = rot % 360
-    end
+CloseBtn.MouseEnter:Connect(function()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(220, 40, 40)}):Play()
 end)
+CloseBtn.MouseLeave:Connect(function()
+    TweenService:Create(CloseBtn, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(15, 18, 24)}):Play()
+end)
+CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
-local function CloseUI()
-    local mainOut = TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {
-        Position = UDim2.new(0.5, -160, 0.6, -135),
-        Size = UDim2.new(0, 0, 0, 0),
-        BackgroundTransparency = 1
-    })
+--// Sidebar
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Parent = MainFrame
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 18, 24)
+Sidebar.Size = UDim2.new(0, 150, 1, 0)
+Sidebar.BackgroundTransparency = 0.2
+Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 14)
 
-    for _, v in pairs(MainFrame:GetChildren()) do
-        if v:IsA("TextLabel") or v:IsA("TextButton") then
-            TweenService:Create(v, TweenInfo.new(0.3), {TextTransparency = 1, BackgroundTransparency = 1}):Play()
-        elseif v:IsA("ImageLabel") then
-            TweenService:Create(v, TweenInfo.new(0.3), {ImageTransparency = 1}):Play()
-        end
-    end
-    
-    mainOut:Play()
-    mainOut.Completed:Connect(function() ScreenGui:Destroy() end)
+local AvatarImg = Instance.new("ImageLabel")
+AvatarImg.Parent = Sidebar
+AvatarImg.Position = UDim2.new(0.5, -35, 0, 30)
+AvatarImg.Size = UDim2.new(0, 70, 0, 70)
+AvatarImg.BackgroundTransparency = 1
+AvatarImg.ImageTransparency = 1
+AvatarImg.Image = game.Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+Instance.new("UICorner", AvatarImg).CornerRadius = UDim.new(1, 0)
+
+local GreetLabel = Instance.new("TextLabel")
+GreetLabel.Parent = Sidebar
+GreetLabel.Position = UDim2.new(0, 10, 0, 110)
+GreetLabel.Size = UDim2.new(1, -20, 0, 50)
+GreetLabel.BackgroundTransparency = 1
+GreetLabel.Text = "Welcome,\n" .. Player.DisplayName
+GreetLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+GreetLabel.Font = Enum.Font.GothamBold
+GreetLabel.TextSize = 13
+GreetLabel.TextWrapped = true
+GreetLabel.TextTransparency = 1
+
+local ExecLabel = Instance.new("TextLabel")
+ExecLabel.Parent = Sidebar
+ExecLabel.Position = UDim2.new(0, 0, 1, -40)
+ExecLabel.Size = UDim2.new(1, 0, 0, 20)
+ExecLabel.BackgroundTransparency = 1
+ExecLabel.Text = getExecutor()
+ExecLabel.TextColor3 = Color3.fromRGB(80, 160, 255)
+ExecLabel.Font = Enum.Font.GothamBold
+ExecLabel.TextSize = 9
+ExecLabel.TextTransparency = 1
+
+--// Content
+local Content = Instance.new("Frame")
+Content.Parent = MainFrame
+Content.Position = UDim2.new(0, 165, 0, 0)
+Content.Size = UDim2.new(1, -175, 1, 0)
+Content.BackgroundTransparency = 1
+
+local HubTitle = Instance.new("TextLabel")
+HubTitle.Parent = Content
+HubTitle.Text = "FYX LOADER"
+HubTitle.Position = UDim2.new(0, 0, 0, 20)
+HubTitle.Size = UDim2.new(1, 0, 0, 35)
+HubTitle.BackgroundTransparency = 1
+HubTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+HubTitle.Font = Enum.Font.GothamBold
+HubTitle.TextSize = 32
+HubTitle.TextXAlignment = Enum.TextXAlignment.Left
+HubTitle.TextTransparency = 1
+
+local Badge = Instance.new("Frame")
+Badge.Parent = Content
+Badge.BackgroundColor3 = Color3.fromRGB(25, 30, 45)
+Badge.Position = UDim2.new(0, 0, 0, 60)
+Badge.Size = UDim2.new(0, 250, 0, 32)
+Badge.BackgroundTransparency = 1
+Instance.new("UICorner", Badge).CornerRadius = UDim.new(0, 8)
+
+local BadgeText = Instance.new("TextLabel")
+BadgeText.Parent = Badge
+BadgeText.Size = UDim2.new(1, 0, 1, 0)
+BadgeText.BackgroundTransparency = 1
+BadgeText.Text = "🎮 " .. GName
+BadgeText.TextColor3 = Color3.fromRGB(120, 180, 255)
+BadgeText.Font = Enum.Font.GothamBold
+BadgeText.TextSize = 14 
+BadgeText.TextTransparency = 1
+
+local UpdatesPanel = Instance.new("Frame")
+UpdatesPanel.Parent = Content
+UpdatesPanel.Position = UDim2.new(0, 0, 0, 105)
+UpdatesPanel.Size = UDim2.new(1, 0, 0, 70)
+UpdatesPanel.BackgroundColor3 = Color3.fromRGB(15, 18, 28)
+UpdatesPanel.BackgroundTransparency = 1
+Instance.new("UICorner", UpdatesPanel).CornerRadius = UDim.new(0, 8)
+
+local UpdatesText = Instance.new("TextLabel")
+UpdatesText.Parent = UpdatesPanel
+UpdatesText.Text = UpdateLog
+UpdatesText.Position = UDim2.new(0, 10, 0, 10)
+UpdatesText.Size = UDim2.new(1, -20, 1, -20)
+UpdatesText.BackgroundTransparency = 1
+UpdatesText.TextColor3 = Color3.fromRGB(200, 200, 200)
+UpdatesText.Font = Enum.Font.GothamSemibold
+UpdatesText.TextSize = 10
+UpdatesText.TextXAlignment = Enum.TextXAlignment.Left
+UpdatesText.TextYAlignment = Enum.TextYAlignment.Top
+UpdatesText.TextTransparency = 1
+
+local function CreateActionBtn(name, pos, color)
+    local btn = Instance.new("TextButton")
+    btn.Name = name
+    btn.Parent = Content
+    btn.Position = pos
+    btn.Size = UDim2.new(1, 0, 0, 42)
+    btn.BackgroundColor3 = color
+    btn.Text = name
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.GothamBold
+    btn.TextSize = 14
+    btn.BackgroundTransparency = 1
+    btn.TextTransparency = 1
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 10)
+    return btn
 end
 
-CloseCircle.MouseButton1Click:Connect(CloseUI)
-CloseCircle.MouseEnter:Connect(function() CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 50, 50) end)
-CloseCircle.MouseLeave:Connect(function() CloseCircle.BackgroundColor3 = Color3.fromRGB(255, 95, 87) end)
+local LaunchBtn = CreateActionBtn("LAUNCH", UDim2.new(0, 0, 0, 185), Color3.fromRGB(30, 50, 100))
+local DiscordBtn = CreateActionBtn("DISCORD", UDim2.new(0, 0, 0, 235), Color3.fromRGB(88, 101, 242))
 
-LoadScript.MouseButton1Click:Connect(function()
-    Status.Text = "Detecting Game..."
-    task.wait(0.3)
-    
-    if game.PlaceId == PrisonLifeID then
-        Status.Text = "Launching Prison Life Script..."
-    else
-        Status.Text = "Launching Global Hub..."
-    end
-    
-    -- Load script with cache bypass
-    loadstring(game:HttpGet(MainScript .. "?t=" .. tick()))()
-    
-    task.wait(0.5)
-    CloseUI()
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Parent = MainFrame
+LoadingBar.Position = UDim2.new(0, 0, 1, -4)
+LoadingBar.Size = UDim2.new(0, 0, 0, 4)
+LoadingBar.BackgroundColor3 = Color3.fromRGB(60, 150, 255)
+LoadingBar.BorderSizePixel = 0
+LoadingBar.ZIndex = 30
+
+--// THE ENGINE (Forces Animation and Visibility)
+task.spawn(function()
+    local rotation = 0
+    game:GetService("RunService").RenderStepped:Connect(function(dt)
+        rotation = (rotation + (120 * dt)) % 360 -- Smooth 120 degrees per second
+        StrokeGradient.Rotation = rotation
+        BgGradient.Rotation = rotation * 0.3
+    end)
 end)
 
-JoinDiscord.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(DiscordLink)
-        Status.Text = "Link Copied!"
-        task.wait(2)
-        Status.Text = "Welcome, " .. Player.DisplayName
+local function Intro()
+    TweenService:Create(MainFrame, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+    TweenService:Create(UIStroke, TweenInfo.new(0.8), {Transparency = 0}):Play()
+    task.wait(0.2)
+    local items = {AvatarImg, GreetLabel, ExecLabel, HubTitle, Badge, BadgeText, UpdatesPanel, UpdatesText, LaunchBtn, DiscordBtn}
+    for _, item in pairs(items) do
+        if item:IsA("TextLabel") or item:IsA("TextButton") then TweenService:Create(item, TweenInfo.new(0.4), {TextTransparency = 0}):Play() end
+        if item:IsA("ImageLabel") then TweenService:Create(item, TweenInfo.new(0.4), {ImageTransparency = 0}):Play() end
+        if item:IsA("Frame") or item:IsA("TextButton") then TweenService:Create(item, TweenInfo.new(0.4), {BackgroundTransparency = 0.2}):Play() end
     end
+end
+
+LaunchBtn.MouseButton1Click:Connect(function()
+    LaunchBtn.Text = "SYSTEM INITIALIZING..."
+    local t = TweenService:Create(LoadingBar, TweenInfo.new(2, Enum.EasingStyle.Quart), {Size = UDim2.new(1, 0, 0, 4)})
+    t:Play()
+    t.Completed:Connect(function()
+        local scriptUrl = (game.PlaceId == PrisonLifeID) and "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/Prisonlife" or "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/main.lua"
+        loadstring(game:HttpGet(scriptUrl .. "?t=" .. tick()))()
+        ScreenGui:Destroy()
+    end)
 end)
+
+DiscordBtn.MouseButton1Click:Connect(function()
+    setclipboard(DiscordLink)
+    DiscordBtn.Text = "COPIED!"
+    task.wait(1)
+    DiscordBtn.Text = "DISCORD"
+end)
+
+MainFrame.Active = true
+MainFrame.Draggable = true
+Intro()
