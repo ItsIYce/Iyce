@@ -21,7 +21,7 @@ local GName = Success and GameInfo.Name or "Unknown Game"
 local DiscordLink = "https://discord.gg/TJEyQSbsKM"
 local PrisonLifeID = 155615604
 local Version = "v2.3.1"
-local UpdateLog = "• Fixed Stroke Gradient Rendering\n• Increased Corner Glow Saturation\n• Synced Background with Border Motion\n• Optimized Animation Thread"
+local UpdateLog = "• Fixed Loader \n• Making it looks better\n• Detect games and your executor\n• FYX on TOP!!"
 
 --// UI Setup
 local ScreenGui = Instance.new("ScreenGui")
