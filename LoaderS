@@ -34,8 +34,8 @@ local Version = "v2.0.1"
 local UpdateLog = "• Smooth Exit Active\n• Ghost Engine Active\n• Status Indicators Added\n• FYX on TOP!!"
 
 
-local PrisonScriptURL = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/Prisonlife"
-local UniversalURL = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/main.lua"
+local PrisonScriptURL = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/prisonlifeS"
+local UniversalURL = "https://raw.githubusercontent.com/ItsIYce/Iyce/refs/heads/main/Aimbot.lua"
 
 
 local ScreenGui = Instance.new("ScreenGui")
